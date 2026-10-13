@@ -33,5 +33,6 @@ Testing deterministic vs non-deterministic systems; building evals from zero (er
 
 Update this section as lessons finish.
 
-- **Lesson 1 (in progress):** `lessons/01_first_eval/`. Run the schema test 10× and do error analysis on failures; finish `variance.py` (temperature 0 vs 1, distinct names in 20 samples); answer the questions in `notes.md`.
+- **Lesson 1 (done):** `lessons/01_first_eval/`. Schema test passed 0/10: every response wrapped schema-valid JSON in a markdown fence (one failure pattern). Variance: temp 0 gave 1 distinct name in 20; temp 1 gave 2, then 8 on a rerun (the measurement itself varies), and every first name was "Marta". `variance.py` strips fences before parsing; the notes record that this hides the format failure. Pinned `anthropic<1` to stay on Python 3.9 and keep the `temperature` argument.
+  - Carry over: the interview answer treated 10/10 → 7/10 as a deterministic regression. Ask a variation of that question at the start of Lesson 2.
 - **Next, Lesson 2:** turn Lesson 1 failures into a first golden dataset; more pytest (fixtures, parametrize over cases, not just runs).

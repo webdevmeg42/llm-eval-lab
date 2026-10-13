@@ -1,7 +1,3 @@
-"""Lesson 1 variance experiment: how much does temperature change the output?
-
-Finish the TODOs, then run:  python lessons/01_first_eval/variance.py
-"""
 import json
 from collections import Counter
 
@@ -20,23 +16,38 @@ SAMPLES = 20
 client = anthropic.Anthropic()
 
 
+def remove_code_fences(text: str) -> str:
+    # TODO: add counter for how many times we need to strip the backticks
+    """Filters out any lines that contain a triple-backtick markdown fence.  This hides the format failure"""
+    lines = text.splitlines()
+    # Keep lines that do not start with the ``` code fence
+    filtered_lines = [line for line in lines if not line.strip().startswith("```")]
+    return "\n".join(filtered_lines).strip()
+
+
 def sample_names(temperature):
     """Call the model SAMPLES times at this temperature; return the NPC names."""
     names = []
     for _ in range(SAMPLES):
-        # TODO 1: call client.messages.create(...) with MODEL, PROMPT, max_tokens,
-        #         and this temperature. (test_npc_schema.py has a working call.)
-        # TODO 2: parse the JSON text and append the "name" field to `names`.
-        #         If parsing fails, append "<invalid>" instead of crashing.
-        pass
+        response = client.messages.create(model=MODEL,max_tokens=300,messages=[{"role": "user", "content": PROMPT}],extra_body={"temperature": temperature})
+        response_text = response.content[0].text
+        response_no_fence = remove_code_fences(response_text)
+        try:
+            response_json = json.loads(response_no_fence)
+            name_value = response_json["name"]
+            names.append(name_value)
+        except (json.JSONDecodeError, KeyError) as e:
+            names.append("<invalid>")
+            print(f"Name parsed as 'invalid'.  ERROR: {e}")
     return names
 
 
 def report(temperature, names):
     counts = Counter(names)
     print(f"\ntemperature={temperature}: {len(counts)} distinct names in {len(names)} samples")
-    # TODO 3: print the 5 most common names with their counts.
-    #         Hint: Counter has a method for exactly this.
+    top_5_names = counts.most_common(5)
+    for name, count in top_5_names:
+        print(f"{name}: {count}")
 
 
 if __name__ == "__main__":
